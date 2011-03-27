@@ -8,7 +8,7 @@ ruby_version_is "1.9" do
     end
 
     it "returns nil for built-in methods" do
-      File.method(:size).source_location.should be_nil
+      [].method(:size).source_location.should be_nil
     end
 
     it "returns an Array" do
