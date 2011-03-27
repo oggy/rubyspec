@@ -46,5 +46,21 @@ ruby_version_is "1.9" do
       method.source_location[0].should =~ /#{__FILE__}/
       method.source_location[1].should == line
     end
+
+    it "works for methods whose visibility has been overridden in a subclass" do
+      line = nil
+      superclass = Class.new do
+        line = __LINE__ + 1
+        def f
+        end
+      end
+      subclass = Class.new(superclass) do
+        private :f
+      end
+
+      method = subclass.new.method(:f)
+      method.source_location[0].should =~ /#{__FILE__}/
+      method.source_location[1].should == line
+    end
   end
 end
