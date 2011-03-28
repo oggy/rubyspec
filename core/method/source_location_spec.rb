@@ -35,14 +35,42 @@ ruby_version_is "1.9" do
       MethodSpecs::SourceLocation.new.method(:aka).source_location.last.should == 17
     end
     
-    it "works for define_method methods" do
+    it "works for methods defined with a block" do
       line = nil
-      cls = Class.new do
+      klass = Class.new do
         line = __LINE__ + 1
-        define_method(:foo) { }
+        define_method(:f) { }
       end
-      
-      method = cls.new.method(:foo)
+
+      method = klass.new.method(:f)
+      method.source_location[0].should =~ /#{__FILE__}/
+      method.source_location[1].should == line
+    end
+
+    it "works for methods defined with a Method" do
+      line = nil
+      klass = Class.new do
+        line = __LINE__ + 1
+        def f
+        end
+        define_method :g, new.method(:f)
+      end
+
+      method = klass.new.method(:g)
+      method.source_location[0].should =~ /#{__FILE__}/
+      method.source_location[1].should == line
+    end
+
+    it "works for methods defined with an UnboundMethod" do
+      line = nil
+      klass = Class.new do
+        line = __LINE__ + 1
+        def f
+        end
+        define_method :g, instance_method(:f)
+      end
+
+      method = klass.new.method(:g)
       method.source_location[0].should =~ /#{__FILE__}/
       method.source_location[1].should == line
     end
